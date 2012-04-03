@@ -1,0 +1,21 @@
+(dp1
+S'output'
+p2
+S"<type 'exceptions.KeyError'> 'colnames'"
+p3
+sS'layer'
+p4
+S'c:\\Users\\Jorge\\Downloads\\web2py_src\\web2py\\applications\\prueba1\\controllers/default.py'
+p5
+sS'code'
+p6
+S'# -*- coding: utf-8 -*-\n### required - do no delete\ndef user(): return dict(form=auth())\ndef download(): return response.download(request,db)\ndef call(): return service()\n### end requires\ndef index():\n    return dict()\n\ndef error():\n    return dict()\n\ndef cliente():\n    datasource = db.cliente\n    table = SQLTABLE(datasource)\n    return dict(table=table)\nresponse._vars=response._caller(cliente)\n'
+p7
+sS'snapshot'
+p8
+(dp9
+sS'traceback'
+p10
+S'Traceback (most recent call last):\n  File "c:\\Users\\Jorge\\Downloads\\web2py_src\\web2py\\gluon\\restricted.py", line 205, in restricted\n    exec ccode in environment\n  File "c:\\Users\\Jorge\\Downloads\\web2py_src\\web2py\\applications\\prueba1\\controllers/default.py", line 17, in <module>\n  File "c:\\Users\\Jorge\\Downloads\\web2py_src\\web2py\\gluon\\globals.py", line 173, in <lambda>\n    self._caller = lambda f: f()\n  File "c:\\Users\\Jorge\\Downloads\\web2py_src\\web2py\\applications\\prueba1\\controllers/default.py", line 15, in cliente\n    table = SQLTABLE(datasource)\n  File "c:\\Users\\Jorge\\Downloads\\web2py_src\\web2py\\gluon\\sqlhtml.py", line 2098, in __init__\n    columns = sqlrows.colnames\n  File "c:\\Users\\Jorge\\Downloads\\web2py_src\\web2py\\gluon\\dal.py", line 6774, in __getattr__\n    return self[key]\n  File "c:\\Users\\Jorge\\Downloads\\web2py_src\\web2py\\gluon\\dal.py", line 6714, in __getitem__\n    return dict.__getitem__(self, str(key))\nKeyError: \'colnames\'\n'
+p11
+s.

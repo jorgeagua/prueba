@@ -1,0 +1,84 @@
+timestamp: 2012-04-02T11:03:14.836000
+CREATE TABLE auth_user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username CHAR(512),
+    first_name CHAR(512),
+    last_name CHAR(512),
+    email CHAR(512),
+    password CHAR(512),
+    created_on TIMESTAMP,
+    modified_on TIMESTAMP,
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512)
+);
+success!
+timestamp: 2012-04-02T11:03:14.927000
+CREATE TABLE auth_group(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2012-04-02T11:03:15.041000
+CREATE TABLE auth_membership(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group(id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-04-02T11:03:15.193000
+CREATE TABLE auth_permission(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group(id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER
+);
+success!
+timestamp: 2012-04-02T11:03:15.320000
+CREATE TABLE auth_event(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time_stamp TIMESTAMP,
+    client_ip CHAR(512),
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    origin CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2012-04-02T11:03:15.432000
+CREATE TABLE auth_cas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service CHAR(512),
+    ticket CHAR(512),
+    renew CHAR(1)
+);
+success!
+timestamp: 2012-04-02T11:11:22.067000
+CREATE TABLE cliente(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    empresa CHAR(512),
+    contacto CHAR(512),
+    telefono CHAR(512),
+    correo CHAR(512),
+    created_on TIMESTAMP
+);
+success!
+timestamp: 2012-04-02T12:29:41.811000
+CREATE TABLE category(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512)
+);
+success!
+timestamp: 2012-04-02T12:29:41.932000
+CREATE TABLE products(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512),
+    category INTEGER REFERENCES category(id) ON DELETE CASCADE,
+    description CHAR(512),
+    quantity INTEGER,
+    price DOUBLE
+);
+success!
