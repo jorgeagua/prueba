@@ -381,19 +381,19 @@ return nRow
 ###############################################################################
 powerTable._class = powerTable.get('_class','powerTable')
 
-powerTable.defaultlanguage =  {'sLengthMenu': str(T('Display _MENU_ entries')),
-                        'sZeroRecords': str(T('Nothing found - sorry')),
-                        'sInfo': str(T('Showing _START_ to _END_ of _TOTAL_ records')),
-                        'sInfoEmpty': str(T('Showing 0 to 0 of 0 records')),
-                        'sInfoFiltered': str(T('(filtered from _MAX_ total records)')),
+powerTable.defaultlanguage =  {'sLengthMenu': str(T('Ver _MENU_ entradas')),
+                        'sZeroRecords': str(T('No se encontraron datos')),
+                        'sInfo': str(T('Mostrando _START_ a _END_ de un total de  _TOTAL_ registros')),
+                        'sInfoEmpty': str(T('mostrando 0 a 0 de un total de 0 registros')),
+                        'sInfoFiltered': str(T('(filtrado desde un total de _MAX_ registros)')),
                         "sInfoPostFix":  "",
-                        "sProcessing":  str(T("Processing...")),
+                        "sProcessing":  str(T("Procesando...")),
                         "sUrl":"",
-                        "sSearch":str(T('Search:')),
-                        "oPaginate": {"sFirst":str(T('First')),
-                                      "sPrevious":str(T('Previous')),
-                                      "sNext":str(T('Next')),
-                                      "sLast":str(T('Last'))}
+                        "sSearch":str(T('Buscar:')),
+                        "oPaginate": {"sFirst":str(T('Primero')),
+                                      "sPrevious":str(T('Anterior')),
+                                      "sNext":str(T('Siguiente')),
+                                      "sLast":str(T('Ultmo'))}
                         }
 
 

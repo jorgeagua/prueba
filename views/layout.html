@@ -24,13 +24,14 @@ div.error { background-color: red; color: white; padding: 3px; }
  </head>
  <body>
   <!-- start header -->
+  <div id="right_footer">
   {{try:}}{{=auth.navbar(action=URL('default','user'))}}{{except:pass}}
-
+  </div>
   <!-- header -->
   <div id="header">
    <div id="logo">
     <a href="#">
-     Company name
+     Sistema de Control de Stock
     </a>
    </div>
    <div id="menu">
@@ -50,17 +51,17 @@ div.error { background-color: red; color: white; padding: 3px; }
    <!-- footer -->
    <div id="footer">
     <div id="left_footer">
-     &copy; Copyright 2008
+     &copy; Copyright 2012
      <strong>
-      Colorus
+      Dise&ntilde;o:
      </strong>
-     design
+     Jorge A.
     </div>
     <div id="right_footer">
      <!-- Please do not change or delete this link. Read the license! Thanks. :-) -->
-     Design by
-     <a href="http://www.realitysoftware.ca" title="Website Design">
-      Reality Software
+     Programado por:
+     <a href="http://www.google.com.ar" title="Pani Soft">
+      Pani Software 
      </a>
     </div>
    </div>

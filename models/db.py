@@ -8,7 +8,11 @@
 ## if SSL/HTTPS is properly configured and you want all HTTP requests to
 ## be redirected to HTTPS, uncomment the line below:
 # request.requires_https()
+if 0:
+    from gluon.sql import *
+    from gluon.validators import *
 
+    
 if not request.env.web2py_runtime_gae:
     ## if NOT running on Google App Engine use SQLite or other DB
     db = DAL('sqlite://storage.sqlite')
@@ -39,8 +43,8 @@ response.generic_patterns = ['*'] if request.is_local else []
 ## (more options discussed in gluon/tools.py)
 #########################################################################
 
-from gluon.tools import Auth, Crud, Service, PluginManager, prettydate
-auth = Auth(db, hmac_key=Auth.get_or_create_key())
+from gluon.tools import Auth, Crud, Service, PluginManager, prettydate, Mail
+auth = Auth(globals(),db, hmac_key=Auth.get_or_create_key())
 crud, service, plugins = Crud(db), Service(), PluginManager()
 
 ## create all tables needed by auth if not custom tables
@@ -72,7 +76,6 @@ db.define_table('auth_user',
     format='%(username)s',
     migrate=settings.migrate)
 
-
 db.auth_user.first_name.requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)
 db.auth_user.last_name.requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)
 db.auth_user.password.requires = CRYPT(key=auth.settings.hmac_key)
@@ -80,12 +83,15 @@ db.auth_user.username.requires = IS_NOT_IN_DB(db, db.auth_user.username)
 db.auth_user.email.requires = (IS_EMAIL(error_message=auth.messages.invalid_email),
                                IS_NOT_IN_DB(db, db.auth_user.email))
 auth.define_tables(migrate = settings.migrate)
+auth.settings.actions_disabled=['register','request_reset_password','retrieve_username']
 
 ## configure email
+mail=Mail()
 mail=auth.settings.mailer
-mail.settings.server = 'logging' or 'smtp.gmail.com:587'
-mail.settings.sender = 'you@gmail.com'
-mail.settings.login = 'username:password'
+mail.settings.server = 'smtp.gmail.com:587'
+mail.settings.sender = 'jorge.agua@gmail.com'
+mail.settings.login = 'jorge.agua@gmail.com:rahogimilmar'
+#mail.settings.server = 'logging'
 
 ## configure auth policy
 auth.settings.registration_requires_verification = False
@@ -118,25 +124,89 @@ db.define_table('cliente',
                 Field('empresa','string',label=T('Empresa')),
                 Field('contacto','string',label=T('Contacto')),
                 Field('telefono','string',label=T('Telefono')),
-                Field('correo','string',label=T('Correo')),
+                Field('correo',label=T('Correo')),
                 Field('created_on','datetime',label=T('Creado en'),default=request.now)
                 )
+db.cliente.empresa.requires=[IS_NOT_EMPTY(),IS_NOT_IN_DB(db,db.cliente.empresa)]
+db.cliente.contacto.requires=[IS_NOT_EMPTY()]
+db.cliente.correo.requires=[IS_EMAIL()]
+
+db.define_table('categoria',
+                Field('name',label=T('Categoria')),
+                      format=lambda r:r.name
+                )
+db.categoria.name.requires=[IS_NOT_EMPTY(),IS_NOT_IN_DB(db,db.categoria.name)]
+
+iva=[0.21,0.105]
+db.define_table('articulo',
+                Field('descripcion','string',label=T('Descripcion')),
+                Field('memo','text',label='Detalle Completo'),
+                Field('link','string',label=T('enlace a:')),
+                Field('iva','double',label=T('IVA')),
+                Field('precio','double',label=T('Precio')),
+                Field('categoria',db.categoria,label=T('Categoria'),
+                      represent=lambda r:r.name)
+                )
+db.articulo.descripcion.requires=[IS_NOT_EMPTY(),IS_NOT_IN_DB(db,db.articulo.descripcion)]
+db.articulo.iva.requires=IS_IN_SET(iva)
+db.articulo.precio.requires=IS_DECIMAL_IN_RANGE(0,200000)
+db.articulo.categoria.requiers=IS_IN_DB(db,'categoria.name','%(name)s',
+                                        zero=T('elija una'))
+db.articulo.link.requires=IS_URL()
+
+
+estado=["Parte En Poder de Técnico","Salida Con Remito","Salida Con Orden de Servicio","Devuelta a Deposito"]
+concepto=["Alquiler","Venta"]
+db.define_table('movimientos',
+                Field('entregado_x','string',label=T('Entregado por')),
+                Field('retirado_x','string',label=T('Retirado por'),default=request.now),
+                Field('id_articulo','integer',label=T('Codigo de Articulo')),
+                Field('cantidad','integer',label=T('Cantidad')),
+                Field('fecha_pedido','datetime',label=T('Fecha de pedido'),default=request.now),
+                Field('fecha_devuelta','datetime',label=T('Fecha de Cierre')),
+                Field('estado','string',default='EN USO',label=T('Estado')),
+                Field('Comprobante','string',default='0',label=T('Nro. de Comprobante')),
+                Field('cliente','integer',label=T('Para uso en')),
+                Field('concepto','string',default='Alquiler',label=T('Concepto'))
+                )
+# validadores
+db.movimientos.id_articulo.represent = lambda id: db.articulo(id).descripcion
+db.movimientos.cliente.represent = lambda id: db.cliente(id).empresa
+db.movimientos.id_articulo.requires=IS_IN_DB(db,'articulo.id')
+db.movimientos.entregado_x.requires=IS_IN_DB(db,'auth_user.username')
+db.movimientos.retirado_x.requires=IS_IN_DB(db,'auth_user.username')
+db.movimientos.estado.requires=IS_IN_SET(estado)
+db.movimientos.cliente.requires=IS_IN_DB(db,'cliente.id')
+db.movimientos.concepto.requires=IS_IN_SET(concepto)
+
+# widgetss
+db.movimientos.id_articulo.widget = SQLFORM.widgets.autocomplete(
+    request, db.articulo.descripcion, id_field=db.articulo.id)
+db.movimientos.cliente.widget = SQLFORM.widgets.autocomplete(
+    request, db.cliente.empresa, id_field=db.cliente.id, min_length=1)
+
+db.define_table('memomovi',
+                Field('referencia','integer',label=T('Referencia')),
+                Field('entregado_x','string',label=T('Entregado por')),
+                Field('retirado_x','string',label=T('Retirado por'),default=request.now),
+                Field('id_articulo','integer',label=T('Codigo de Articulo')),
+                Field('cantidad','integer',label=T('Cantidad')),
+                Field('fecha_pedido','datetime',label=T('Fecha de pedido'),default=request.now),
+                Field('fecha_devuelta','datetime',label=T('Fecha de Cierre')),
+                Field('estado','string',default='',label=T('Estado')),
+                Field('Comprobante','string',default='0',label=T('Nro. de Comprobante')),
+                Field('cliente','integer',label=T('Para uso en')),
+                Field('concepto','string',default='Alquiler',label=T('Concepto'))
+                )
+
+
+
+
+
 mail.settings.server = settings.email_server
 mail.settings.sender = settings.email_sender
 mail.settings.login = settings.email_login
 
 
-db.define_table('category',
-                Field('name',label=T('Nombre Categoria')),
-                format=lambda r:r.name
-                )
 
-db.define_table('products',
-                Field('name',label=T('Nombre')),
-                Field('category',db.category,label=T('Categoria'),
-                      represent=lambda r:r.name),
-                Field('description',label=T('Descripcion'),
-                represent=lambda d:MARKMIN(d)),
-                Field('quantity','integer',label=T('En Stock')),
-                Field('price','double',label=T('Precio')),
-                )
+
